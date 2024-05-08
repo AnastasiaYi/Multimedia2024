@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+        .grid img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Results</h1>
+    <div class="grid">
+        <!-- Images are added dynamically here -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/results')
+                .then(response => response.json())
+                .then(images => {
+                    const grid = document.querySelector('.grid');
+                    images.forEach(image => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = image.url;
+                        grid.appendChild(imgElement);
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
