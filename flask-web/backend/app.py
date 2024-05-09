@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-import sklearn
+from src.ann import FeatureExtractor
 
 
 app = Flask(__name__)
@@ -18,12 +18,18 @@ upload_success = False
 @app.route('/get', methods=['GET'])
 def get_data():
     if upload_success:
-      data={}
-      data['bird_species']='small chicken',
-      data['img_url']="https://www.si.com/.image/ar_1.91%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cg_faces:center%2Cq_auto:good%2Cw_1200/MjAyOTUwMTU0NTk5Mjc3NTgw/jalen-brunson.jpg"
-      return jsonify(data)
+        root = app.config['UPLOAD_FOLDER']
+        files = os.listdir(root)
+        paths = [os.path.join(root, f) for f in files]
+        
+        extractor = FeatureExtractor(paths)
+        fusional_features = extractor.get_fusional_features()
+        data={}
+        data['bird_species']='small chicken',
+        data['img_url']="https://www.si.com/.image/ar_1.91%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cg_faces:center%2Cq_auto:good%2Cw_1200/MjAyOTUwMTU0NTk5Mjc3NTgw/jalen-brunson.jpg"
+        return jsonify(data)
     else:
-      return "Please Upload query images first"
+        return "Please Upload query images first"
 
 
 @app.route('/upload', methods=['POST'])
@@ -37,8 +43,9 @@ def upload():
     if file:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
+
         # Here you can add your machine learning preprocessing
-        response = {'message': 'File uploaded successfully', 'filename': file.filename}
+        response = {'message': f'File uploaded successfully.', 'filename': file.filename}
         upload_success = True
         return jsonify(response), 200
 

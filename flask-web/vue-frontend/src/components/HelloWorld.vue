@@ -5,13 +5,13 @@
       <input type="file" @change="onFileChange">
       <button @click="uploadImage">Upload</button>
       <p v-if="uploadStatus">{{ uploadStatus }}</p>
-      <button @click="fetchData">Fetch Data</button>
+      <button @click="fetchData">Search</button>
       <p v-if="getDataResponse">{{ getDataResponse }}</p>
     </div>
     <div>
       <img alt="Received Image" :src="imageURL" v-if="imageURL">
     </div>
-</div>
+  </div>
 </template>
 
 <script>
