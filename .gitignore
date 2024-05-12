@@ -1,2 +1,9 @@
 *.csv
 /CUB_200_2011/
+/test_img/
+*.pt
+*.pth
+*.zip
+*.jpg
+*.png
+/after-images/
