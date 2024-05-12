@@ -3,11 +3,9 @@ from flask_cors import CORS
 import os
 from src.ann import ANN
 
-
-app = Flask(__name__)
-
-CORS(app, resources={r"/*": {"origins": "*"}})
 # CORS(app, resources={r"/upload": {"origins": ["http://localhost:8081"]}})
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})   # CORS policy applies to all routes, and allows all domains to access your Flask application
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
