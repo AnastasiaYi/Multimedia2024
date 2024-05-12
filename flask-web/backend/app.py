@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from src.ann import FeatureExtractor
+from src.ann import ANN
 
 
 app = Flask(__name__)
@@ -22,8 +22,8 @@ def get_data():
         files = os.listdir(root)
         paths = [os.path.join(root, f) for f in files]
         
-        extractor = FeatureExtractor(paths)
-        fusional_features = extractor.get_fusional_features()
+        extractor = ANN(paths)
+        fusional_features = extractor._get_fusional_features()
         data={}
         data['bird_species']='small chicken',
         data['img_url']="https://www.si.com/.image/ar_1.91%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cg_faces:center%2Cq_auto:good%2Cw_1200/MjAyOTUwMTU0NTk5Mjc3NTgw/jalen-brunson.jpg"
