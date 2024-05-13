@@ -19,8 +19,8 @@ class DatabaseManager:
                 if features_text:
                     features = [float(num) for num in features_text.split(',')]
                     all_features.append(features)
-            print("length of all feature vectors",len(all_features))
-            print("length of feature vector for one image",len(all_features[0]))
+            # print("length of all feature vectors",len(all_features))
+            # print("length of feature vector for one image",len(all_features[0]))
             # print("first five",all_features[9][:5])
             return np.array(all_features)
         except Exception as e:
@@ -38,7 +38,7 @@ class DatabaseManager:
                 filepath = self.get_file_full_path(filename)
                 class_name = self.get_class_name(filename)
                 # print("Filepath:", filepath)
-                print("Features:", len(features), type(features))
+                # print("Features:", len(features), type(features))
                 return filepath, class_name, features
             else:
                 print("No data found for ID:", id)
@@ -48,14 +48,19 @@ class DatabaseManager:
             return None
     
     def get_file_full_path(self, filename):
-        # base_path = "/Users/jeffreylu/Desktop/24s1/mutimedia "
-        base_path = '../../..'
+        # base_path = "/Users/jeffreylu/Desktop/24s1/mutimedia/CUB_200/CUB_200_2011"
+        base_path = "../vue-frontend/public/data/CUB_200_2011"
+        # base_path = '../../..'
+        filename=filename.split('/')[1]
+        filename=filename.replace('\\', '/')
         final_path = os.path.join(base_path,filename)
-        print("image full path:", final_path)
+        # print("image full path:", final_path)
         return final_path
     def get_class_name(self, filename):
         # TODO: extract class name based on file name 
-        class_name = "class_name"
+        filename = filename.split('\\')[-1]
+        # class_name = filename.split('.')[0]
+        class_name = filename.split('_0')[0]
         print("class_name:",class_name)
         return class_name    
 
@@ -66,7 +71,7 @@ class DatabaseManager:
 
 db_manager = DatabaseManager(host='localhost', user='root', password='Lbb15853111953', dbname='sample_bird')
 # 输入图片id，去数据库里取图片的路径和feature vectors
-filename, features, class_name = db_manager.fetch_data_by_id(5)
+filename, class_name, features= db_manager.fetch_data_by_id(5)
 all_feature_vectors = db_manager.get_all_feature_vectors()
 db_manager.close()
 

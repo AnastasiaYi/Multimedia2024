@@ -21,15 +21,17 @@ def get_data():
         
         extractor = ANN(root)
         file_names, class_names = extractor.get_indices(1000, 0.1)
+        print(file_names)
+        # print(class_names)
 
         data={}
 
-        data['bird_species_1']='Jalen Brunson',
-        data['img_url_1']="https://www.si.com/.image/ar_1.91%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cg_faces:center%2Cq_auto:good%2Cw_1200/MjAyOTUwMTU0NTk5Mjc3NTgw/jalen-brunson.jpg"
-        data['bird_species_2']='Naz Reid',
-        data['img_url_2']="https://cdn.forumcomm.com/dims4/default/4b4d971/2147483647/strip/true/crop/3451x2301+0+0/resize/1599x1066!/quality/90/?url=https%3A%2F%2Fforum-communications-production-web.s3.us-west-2.amazonaws.com%2Fbrightspot%2F0a%2F4f%2Fb11228204ecdbe4003209bd31092%2F2022-12-20t035812z-247368338-mt1usatoday19655624-rtrmadp-3-nba-dallas-mavericks-at-minnesota-timberwolves.JPG"
-        data['bird_species_3']='Josh Hart',
-        data['img_url_3']="https://www.si.com/.image/t_share/MjAyOTM3Mzc0MTE4NzgxOTY0/josh-hart-knicks.jpg"
+        data['bird_species_1']=class_names[0]
+        data['img_url_1']=file_names[0]
+        data['bird_species_2']=class_names[1]
+        data['img_url_1']=file_names[1]
+        data['bird_species_3']=class_names[2]
+        data['img_url_3']=file_names[2]
 
         return jsonify(data)
     else:

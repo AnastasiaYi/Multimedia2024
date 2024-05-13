@@ -1,5 +1,4 @@
 from keras.applications.vgg16 import VGG16, preprocess_input
-from tensorflow.keras.layers import Conv2D, LeakyReLU,MaxPooling2D,Flatten,Dense,Dropout
 from keras.models import Model
 import keras.utils as image
 import numpy as np
@@ -78,12 +77,15 @@ class ANN():
         for key, value in zip(indices, distances):
             cnn_score = 1/value
             # print(cnn_score)
-            base_path = '../../..'
+            # base_path = '../../..'
             f, _, _ = db_manager.fetch_data_by_id(key)
-            f = os.path.join(base_path, f)
+            # f = os.path.join(base_path, f)
 
             img = cv2.imread(f,cv2.IMREAD_GRAYSCALE)
-            _, descriptors = sift.detectAndCompute(img, None)
+            if f.endswith(('.png', '.jpg', '.jpeg')):
+                _, descriptors = sift.detectAndCompute(img, None)
+            else:
+                return "Error in uploaded images."
             index_params = dict(algorithm = 1, trees = 5)
             search_params = dict()
             # Create the FLANN matcher
@@ -108,7 +110,7 @@ class ANN():
         file_names = []
         class_names = []
         for i in top_three_indecies:
-            filename, _, classname = db_manager.fetch_data_by_id()
+            filename, classname, _ = db_manager.fetch_data_by_id(i)
             file_names.append(filename)
             class_names.append(classname)
 

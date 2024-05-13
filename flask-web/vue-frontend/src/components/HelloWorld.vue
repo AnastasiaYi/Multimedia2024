@@ -9,9 +9,9 @@
     </div>
     <p v-if="uploadStatus" class="status-message">{{ uploadStatus }}</p>
     <p v-if="isloading">Searching similar images...</p>
-    <div class="image-preview" v-if="imageURLs.length">
-      <div v-for="(url, index) in imageURLs" :key="index" class="image-container">
-        <img :src="url" alt="Received Image">
+    <div class="image-preview" v-if="image_path.length">
+      <div v-for="(path, index) in image_path" :key="index" class="image-container">
+        <img :src="path" alt="Received Image">
         <p>{{ bird_species[index] }}</p>
       </div>
     </div>
@@ -31,7 +31,7 @@ export default {
       uploadStatus: null,
       getDataResponse: null,
       bird_species: [],
-      imageURLs: [],
+      image_path: [],
       isloading: false
     };
   },
@@ -39,6 +39,10 @@ export default {
     this.cleanupOnReload();
   },
   methods: {
+    getImageUrl(filePath) {
+      const filename = filePath.split('/').pop(); // Get the filename from the path
+      return `http://localhost:5000/images/${filename}`;
+    },
     onFileChange(e) {
       this.selectedFiles = e.target.files;
     },
@@ -72,15 +76,16 @@ export default {
     fetchData() {
       this.isloading = true;
       this.bird_species = [];  // Clear previous data
-      this.imageURLs = [];     // Clear previous data
+      this.image_path = [];     // Clear previous data
       axios.get('http://localhost:5001/get')
         .then(response => {
           for (let i = 1; i <= 3; i++) {
-            this.bird_species.push((response.data[`bird_species_${i}`])[0]);
-            this.imageURLs.push((response.data[`img_url_${i}`]));
+            this.bird_species.push(response.data[`bird_species_${i}`]);
+            // this.image_path.push((response.data[`img_url_${i}`]));
+            this.image_path.push(('.'+response.data[`img_url_${i}`]).split('../vue-frontend/public')[1]);
           }
           this.isloading = false;
-          console.log((response.data['bird_species_1'])[0])
+          console.log(this.image_path[0],this.image_path[1],this.image_path[2])
         })
         .catch(error => {
           console.error('GET request failed:', error);
@@ -182,8 +187,4 @@ export default {
 .refresh-button:hover {
   background-color: #e5533b;
 }
-
-
-
-
 </style>
