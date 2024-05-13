@@ -4,83 +4,113 @@ from keras.models import Model
 import keras.utils as image
 import numpy as np
 import faiss
+import keras
+import os
+import cv2
+from .db_manager import DatabaseManager
 
 
 class ANN():
-    def __init__(self, paths):
-        self.paths = paths
+    def __init__(self, query_paths):
+        self.query_paths = query_paths
     
     def _model_init(self):
-        base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
-
-        # Replace ReLU with LeakyReLU
-        x = base_model.input
-        for layer in base_model.layers:
-            if isinstance(layer, Conv2D):
-                # Creates a new layer with the same configuration as the current layer, but without the activation function
-                new_layer = Conv2D(
-                    filters=layer.filters,
-                    kernel_size=layer.kernel_size,
-                    strides=layer.strides,
-                    padding=layer.padding,
-                    activation=None,  
-                    name=layer.name
-                )
-                
-                new_layer.build(layer.input_shape)
-                new_layer.set_weights(layer.get_weights())
-                
-                x = new_layer(x)
-                
-                # add LeakyReLU
-                x = LeakyReLU(alpha=0.01)(x)
-                
-            elif isinstance(layer, MaxPooling2D):
-                x = layer(x)
-
-
-        # Add the full connection layer
-        x = Flatten()(x)  
-        x = Dense(4096)(x)
-        x = LeakyReLU(alpha=0.01)(x)
-        x = Dropout(0.5)(x)
-
-        # feature vector 4096
-        return Model(inputs=base_model.input, outputs=x)
+        base_model = VGG16(weights='imagenet', input_shape=(224, 224, 3))
+        intermediate_layer_model = keras.Model(inputs=base_model.input,
+                                       outputs=base_model.get_layer("fc1").output)
+        return intermediate_layer_model
     
-    def _extract_features(self, model, img_path):
+    def _extract_features(self, img_path):
+        model = self._model_init()
         img = image.load_img(img_path, target_size=(224, 224))
         img_array = image.img_to_array(img)
         img_array_expanded = np.expand_dims(img_array, axis=0)
         img_preprocessed = preprocess_input(img_array_expanded)
         features = model.predict(img_preprocessed)
         return features.flatten()
-    
-    def _get_fusional_features(self):
-        LeakyReLU_model = self._model_init()
-        features_list = []
-        for path in self.paths:
-            features = self._extract_features(LeakyReLU_model, path)
-            features_list.append(features)
-        features_array = np.array(features_list)
-        return np.mean(features_array, axis=0).reshape((1, 4096))
 
+    def _get_base_features(self, db_manager):
+        all_feature_vectors = db_manager.get_all_feature_vectors()
+        return all_feature_vectors # Should be numpy array of shape (N, 4096)
     
-    def _get_base_features(self):
-        base_features = []
-        # TODO: Implement function
-        return base_features # Should be numpy array of shape (N, 4096)
+    def _get_query_features(self):
+        files = os.listdir(self.query_paths)
+        sift = cv2.SIFT.create()
+        features_cnn_q = []
+        sift_features = []
         
-    def get_indices(self):
-        base_features = self._get_base_features()
-        query_features = self._get_fusional_features()
-        dimension = base_features.shape[1]
+        for f in files:
+            path = os.path.join(self.query_paths, f)
+            if path.endswith(('.png', '.jpg')):
+                # Extract CNN features
+                feat = self._extract_features(path)
+                features_cnn_q.append(feat)
+                # Extract SIFT features
+                img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+                _, descriptors = sift.detectAndCompute(img, None)
+                sift_features.append(descriptors)
+
+        features_sift_q = np.concatenate(sift_features)
+        features_cnn_q = np.array(features_cnn_q)
+        return features_sift_q, features_cnn_q
+
+    
+    def _compute_ann(self, features_all, features_cnn_q):
+        dimension = features_all.shape[1]
         index = faiss.IndexFlatL2(dimension)  # Using L2 distance for similarity
-        index.add(base_features)  # Add the dataset to the index
-
+        index.add(features_all)  # Add the dataset to the index
         # Perform the search
-        k = 12  # Number of nearest neighbors to find
-        _, I = index.search(query_features, k)
+        k = 50  # Number of nearest neighbors to find
+        D, I = index.search(features_cnn_q, k)
+        return I, D
 
-        return I[0]
+    def get_indices(self, cnn_ratio, sift_ratio):
+        db_manager = DatabaseManager(host='localhost', user='root', password='Lbb15853111953', dbname='sample_bird')
+        features_all = self._get_base_features(db_manager)
+        features_sift_q, features_cnn_q = self._get_query_features()
+        Index, Distance = self._compute_ann(features_all,features_cnn_q)
+        indices = Index.flatten()
+        distances = Distance.flatten()
+
+        scoring_dict = {}
+        sift = cv2.SIFT.create()
+        
+        for key, value in zip(indices, distances):
+            cnn_score = 1/value
+            # print(cnn_score)
+            base_path = '../../..'
+            f, _, _ = db_manager.fetch_data_by_id(key)
+            f = os.path.join(base_path, f)
+
+            img = cv2.imread(f,cv2.IMREAD_GRAYSCALE)
+            _, descriptors = sift.detectAndCompute(img, None)
+            index_params = dict(algorithm = 1, trees = 5)
+            search_params = dict()
+            # Create the FLANN matcher
+            flann = cv2.FlannBasedMatcher(index_params, search_params)
+            matches = flann.knnMatch(descriptors, features_sift_q, k=2)
+            good_matches = 0
+            for m, n in matches:
+                if m.distance < 0.75 * n.distance:
+                    good_matches+=1
+
+            sift_score = good_matches/min(len(descriptors), len(features_sift_q))
+            # print(sift_score)
+
+            score = cnn_ratio*cnn_score + sift_ratio*sift_score
+            if key in scoring_dict:
+                scoring_dict[key] += score
+            else:
+                scoring_dict[key] = score
+            
+        top_three_indecies = [key for key, _ in sorted(scoring_dict.items(), key=lambda item: item[1], reverse=True)[:3]]
+
+        file_names = []
+        class_names = []
+        for i in top_three_indecies:
+            filename, _, classname = db_manager.fetch_data_by_id()
+            file_names.append(filename)
+            class_names.append(classname)
+
+        return file_names, class_names
     

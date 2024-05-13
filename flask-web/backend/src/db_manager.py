@@ -1,6 +1,7 @@
 import pymysql
 import os
 import re
+import numpy as np
 
 class DatabaseManager:
     def __init__(self, host, user, password, dbname):
@@ -21,7 +22,7 @@ class DatabaseManager:
             print("length of all feature vectors",len(all_features))
             print("length of feature vector for one image",len(all_features[0]))
             # print("first five",all_features[9][:5])
-            return all_features
+            return np.array(all_features)
         except Exception as e:
             print("An error occurred:", e)
             return None
@@ -47,7 +48,8 @@ class DatabaseManager:
             return None
     
     def get_file_full_path(self, filename):
-        base_path = "/Users/jeffreylu/Desktop/24s1/mutimedia "
+        # base_path = "/Users/jeffreylu/Desktop/24s1/mutimedia "
+        base_path = '../../..'
         final_path = os.path.join(base_path,filename)
         print("image full path:", final_path)
         return final_path
