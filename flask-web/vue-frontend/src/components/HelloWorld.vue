@@ -5,15 +5,20 @@
       <input type="file" multiple @change="onFileChange">
       <button class="button upload-button" @click="uploadImage">Upload</button>
       <button class="button search-button" @click="fetchData">Search</button>
+      <button class="button refresh-button" @click="refreshPage">Refresh</button>
     </div>
     <p v-if="uploadStatus" class="status-message">{{ uploadStatus }}</p>
-    <p v-if="getDataResponse" class="status-message">{{ getDataResponse }}</p>
-    <p v-if="isloading">Searching similar images...</p> 
-    <div v-if="imageURL" class="image-preview">
-      <img alt="Received Image" :src="imageURL">
+    <p v-if="isloading">Searching similar images...</p>
+    <div class="image-preview" v-if="imageURLs.length">
+      <div v-for="(url, index) in imageURLs" :key="index" class="image-container">
+        <img :src="url" alt="Received Image">
+        <p>{{ bird_species[index] }}</p>
+      </div>
     </div>
   </div>
 </template>
+
+
 
 
 <script>
@@ -25,8 +30,8 @@ export default {
       selectedFiles: null,
       uploadStatus: null,
       getDataResponse: null,
-      bird_species: null,
-      imageURL: null,
+      bird_species: [],
+      imageURLs: [],
       isloading: false
     };
   },
@@ -59,22 +64,30 @@ export default {
           console.error('Config:', error.config);
       });
     },
-    fetchData() {
-      this.isloading = true
-      axios.get('http://localhost:5001/get')
-      .then(response => {
-        this.getDataResponse = response.data;
-        this.bird_species = this.getDataResponse["bird_species"];
-        this.imageURL = this.getDataResponse['img_url'];
-        console.log('bird_species', this.getDataResponse['bird_species']);
-        console.log('img url:', this.getDataResponse['img_url']);
-        this.isloading = false; 
-      })
-      .catch(error => {
-        console.error('GET request failed:', error);
-        this.isloading = false; 
-      });
+    refreshPage() {
+    console.log("refresh")
+    window.location.reload(); // Reload the page
+    
     },
+    fetchData() {
+      this.isloading = true;
+      this.bird_species = [];  // Clear previous data
+      this.imageURLs = [];     // Clear previous data
+      axios.get('http://localhost:5001/get')
+        .then(response => {
+          for (let i = 1; i <= 3; i++) {
+            this.bird_species.push((response.data[`bird_species_${i}`])[0]);
+            this.imageURLs.push((response.data[`img_url_${i}`]));
+          }
+          this.isloading = false;
+          console.log((response.data['bird_species_1'])[0])
+        })
+        .catch(error => {
+          console.error('GET request failed:', error);
+          this.isloading = false;
+        });
+    },
+
     cleanupOnReload() {
     axios.post('http://localhost:5001/delete-uploads')
       .then(response => {
@@ -137,5 +150,40 @@ export default {
   color: #333; /* Or any color that fits your design */
   margin-top: 8px;
 }
+
+.image-preview {
+  text-align: center; /* Ensure contents are centered */
+  margin-top: 10px; /* Space between search text and images */
+}
+
+.image-container {
+  display: inline-block; /* Align images horizontally */
+  margin-right: 10px; /* Space between image blocks */
+  max-width: 350px; /* Set max width for image container */
+  width: 100%; /* Ensure container takes full width */
+  vertical-align: top; /* Align the top of the elements */
+}
+
+.image-container img {
+  width: 100%; /* Make images fill their container */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Remove any default margins or padding */
+}
+
+.image-container p {
+  text-align: center; /* Center the species text below the image */
+  margin-top: 5px; /* Small space between image and text */
+  color: #333; /* Optional: color for the species name */
+}
+.refresh-button {
+  background-color: #ff6347; /* Tomato */
+}
+
+.refresh-button:hover {
+  background-color: #e5533b;
+}
+
+
+
 
 </style>
