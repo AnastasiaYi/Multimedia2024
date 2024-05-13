@@ -9,7 +9,8 @@ class DatabaseManager:
         self.cursor = self.connection.cursor()
     
     def get_all_feature_vectors(self):
-        query = "SELECT features FROM bird_table"
+        # query = "SELECT features FROM bird_table"
+        query = "SELECT features FROM bird_table_2"
         all_features = [] 
         try:
             self.cursor.execute(query)
@@ -28,7 +29,8 @@ class DatabaseManager:
             return None
 
     def fetch_data_by_id(self, id):
-        query = "SELECT filename, features FROM bird_table WHERE id = %s"
+        # query = "SELECT filename, features FROM bird_table WHERE id = %s"
+        query = "SELECT filename, features FROM bird_table_2 WHERE id = %s"
         try:
             self.cursor.execute(query, (id,))
             result = self.cursor.fetchone()
@@ -51,17 +53,17 @@ class DatabaseManager:
         # base_path = "/Users/jeffreylu/Desktop/24s1/mutimedia/CUB_200/CUB_200_2011"
         base_path = "../vue-frontend/public/data/CUB_200_2011"
         # base_path = '../../..'
-        filename=filename.split('/')[1]
-        filename=filename.replace('\\', '/')
+        filename=filename.split('./')[1]
+        # filename=filename.replace('\\', '/')
         final_path = os.path.join(base_path,filename)
         # print("image full path:", final_path)
         return final_path
     def get_class_name(self, filename):
         # TODO: extract class name based on file name 
-        filename = filename.split('\\')[-1]
+        filename = filename.split('/')[-1]
         # class_name = filename.split('.')[0]
-        class_name = filename.split('_0')[0]
-        print("class_name:",class_name)
+        class_name = filename.split('_0')[0].replace('_', ' ')
+        # print("class_name:",class_name)
         return class_name    
 
     def close(self):
