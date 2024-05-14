@@ -46,7 +46,20 @@ If you are using MacOS or Linux, you can use Homebrew to install by running the 
   <img src="img/web.jpg" alt="Image 2 Description" width="400"/>
 </p>
 
-- First, go to `flask-web/vue-frontend`, and run `npm install` in a terminal or PowerShell. \
+- The app is run on a local MySQL database named `sample_bird` with a single table named `bird_table_2`. The database should have the following architecture:
+
+  ```
+    | filename    | features    | id
+    | ----------- | ----------- |----
+    | filename 1  | features 1  |0
+    | filename 2  | features 2  |1
+    ...
+    | filename n  | features n  |n-1
+    
+  ```
+  You will need to create a empty database yourself on your local machine. Next, you can use the code in the Jupyter Notebook to generate a csv containing the filename and the features. Finally, import the data in the csv file into the database.
+
+- To run the application, direct to `flask-web/vue-frontend`, and run `npm install` in a terminal or PowerShell. \
   After installation, run `npm run serve`. \
   You should see a message that the app is running at the local host. Copy the local URL to a clipboard. You will need it later.
 - In a new terminal or PowerShell, direct to `flask-web/backend`. Run `python app.py`. After the server starts successfully, open the URL you copied in your web browser. Now you can see the running web app.
