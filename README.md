@@ -34,7 +34,8 @@ If you are using MacOS or Linux, you can use Homebrew to install by running the 
         |-- vue_frontend
             |-- public
                 |-- data
-                    |-- images
+                    |-- CUB_200_2011
+                        |-- images
     ...
     
    ```
