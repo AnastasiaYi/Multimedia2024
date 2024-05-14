@@ -76,10 +76,8 @@ class ANN():
         
         for key, value in zip(indices, distances):
             cnn_score = 1/value
-            # print(cnn_score)
-            # base_path = '../../..'
+
             f, _, _ = db_manager.fetch_data_by_id(key)
-            # f = os.path.join(base_path, f)
 
             img = cv2.imread(f,cv2.IMREAD_GRAYSCALE)
             if f.endswith(('.png', '.jpg', '.jpeg')):
@@ -101,7 +99,7 @@ class ANN():
 
             score = cnn_ratio*cnn_score + sift_ratio*sift_score
             if key in scoring_dict:
-                scoring_dict[key] += score
+                scoring_dict[key] += cnn_ratio*cnn_score
             else:
                 scoring_dict[key] = score
             
