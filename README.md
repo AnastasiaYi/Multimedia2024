@@ -1,4 +1,4 @@
-# Multi-Query Content Based Image Retrieval System for Bird Species Identification
+# Multi-Query Content-Based Image Retrieval System for Bird Species Identification
 
 ## 1. Requirements
 - This project requires Python>=3.10.0. You can create a conda environment using the following: \
@@ -11,10 +11,10 @@ We are using Node version `v16.20.2` and npm version `8.19.4`.\
 If you are using MacOS or Linux, you can use Homebrew to install by running the following:\
 `brew install node@16` 
 
-- Run `python setup.py` to install required pakages.
+- Run `python setup.py` to install the required packages.
 
 ## 2. Download dataset
-- The dataset is avaliable at [Google Drive](https://drive.google.com/file/d/1dQx1cwO4W0WVYcnzGB1ftxEcwiQaFv90/view?usp=sharing). Note there are many folders and files inside,
+- The dataset is available at [Google Drive](https://drive.google.com/file/d/1dQx1cwO4W0WVYcnzGB1ftxEcwiQaFv90/view?usp=sharing). Note there are many folders and files inside,
   but we only need to use the `CUB_200_2011/images` folder. The hierarchy of the dataset is shown below:
   ```
    ${CUB_200_2011 ROOT}
@@ -38,10 +38,10 @@ If you are using MacOS or Linux, you can use Homebrew to install by running the 
   
 
 ## 3. Run the app
-- First go to `flask-web/vue-frontend`, run `npm install` in a ternimal or powershell. \
+- First, go to `flask-web/vue-frontend`, and run `npm install` in a terminal or PowerShell. \
   After installation, run `npm run serve`. \
-  You should see a message that the app is running at local host. Copy the local url to a clipboard. You will need it later.
-- In a new ternimal or powershell, direct to `flask-web/backend`. Run `python app.py`. After the server started successfully, open the url you copied in your web browser. Now you can see the running web app.
-- You can upload to 5 images at once. After the images are uploaded successfully, click the search button and be patient. **Note that the initial search would take longer as the model needs to be initialized.**
+  You should see a message that the app is running at the local host. Copy the local URL to a clipboard. You will need it later.
+- In a new terminal or PowerShell, direct to `flask-web/backend`. Run `python app.py`. After the server starts successfully, open the URL you copied in your web browser. Now you can see the running web app.
+- You can upload up to 5 images at once. After the images are uploaded successfully, click the search button and be patient. **Note that the initial search would take longer as the model needs to be initialized.**
 - If you want to start a new search, click on refresh or refresh your browser. This will delete your previously uploaded files.
 
