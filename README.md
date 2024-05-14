@@ -1,7 +1,6 @@
 # Multi-Query Content-Based Image Retrieval System for Bird Species Identification
 <p align="center">
-  <img src="images/web.jpg" alt="Image 1 Description" width="400"/>
-  <img src="images/pipeline.png" alt="Image 2 Description" width="400"/>
+  <img src="img/pipeline.png" alt="Image 2 Description" width="400"/>
 </p>
 ## 1. Requirements
 - This project requires Python>=3.10.0. You can create a conda environment using the following: \
