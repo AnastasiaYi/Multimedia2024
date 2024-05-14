@@ -2,6 +2,7 @@
 <p align="center">
   <img src="img/pipeline.png" alt="Image 2 Description" width="400"/>
 </p>
+
 ## 1. Requirements
 - This project requires Python>=3.10.0. You can create a conda environment using the following: \
 ```conda create -n <env_name> python=3.10.9``` \
@@ -40,6 +41,11 @@ If you are using MacOS or Linux, you can use Homebrew to install by running the 
   
 
 ## 3. Run the app
+
+<p align="center">
+  <img src="img/web.jpg" alt="Image 2 Description" width="400"/>
+</p>
+
 - First, go to `flask-web/vue-frontend`, and run `npm install` in a terminal or PowerShell. \
   After installation, run `npm run serve`. \
   You should see a message that the app is running at the local host. Copy the local URL to a clipboard. You will need it later.
