@@ -29,7 +29,7 @@ def get_data():
         data['bird_species_1']=class_names[0]
         data['img_url_1']=file_names[0]
         data['bird_species_2']=class_names[1]
-        data['img_url_1']=file_names[1]
+        data['img_url_2']=file_names[1]
         data['bird_species_3']=class_names[2]
         data['img_url_3']=file_names[2]
 

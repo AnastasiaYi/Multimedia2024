@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-    <h1>Please upload query image here</h1>
+    <!-- <h1>Please upload query image here</h1> -->
+    <h1>Multi-query Image Retrieval System for Bird Species Identification</h1>
     <div>
       <input type="file" multiple @change="onFileChange">
       <button class="button upload-button" @click="uploadImage">Upload</button>
@@ -8,13 +9,18 @@
       <button class="button refresh-button" @click="refreshPage">Refresh</button>
     </div>
     <p v-if="uploadStatus" class="status-message">{{ uploadStatus }}</p>
-    <p v-if="isloading">Searching similar images...</p>
+    <p v-if="isloading" style="font-weight: bold;">Searching similar images...</p>
     <div class="image-preview" v-if="image_path.length">
       <div v-for="(path, index) in image_path" :key="index" class="image-container">
         <img :src="path" alt="Received Image">
-        <p>{{ bird_species[index] }}</p>
+        <p class="bird-species-text">{{ bird_species[index] }}</p>
       </div>
     </div>
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 COMP4425 Multimedia Project. Produced by group 16. Contact us at <a href="welu0750@uni.sydney.edu.au">welu0750@uni.sydney.edu.au</a></p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -32,7 +38,8 @@ export default {
       getDataResponse: null,
       bird_species: [],
       image_path: [],
-      isloading: false
+      isloading: false,
+      uploadSuccessful: false
     };
   },
   created() {
@@ -45,8 +52,14 @@ export default {
     },
     onFileChange(e) {
       this.selectedFiles = e.target.files;
+      this.uploadStatus = null;
+      this.uploadSuccessful = false;
     },
     uploadImage() {
+      if (!this.selectedFiles || this.selectedFiles.length === 0) {
+        this.uploadStatus = 'Please select files before uploading.';
+        return;
+      }
       const formData = new FormData();
       Array.from(this.selectedFiles).forEach((file) => {
       formData.append('file[]', file); // Append each file under the same name 'file[]'
@@ -55,9 +68,12 @@ export default {
       axios.post('http://localhost:5001/upload', formData)
       .then(response => {
         this.uploadStatus = response.data.message;
+        this.uploadSuccessful = true; 
         console.log(response.data);
       })
       .catch(error => {
+          this.uploadStatus = 'Failed to upload files. Please try again.';
+          this.uploadSuccessful = false;  
           if (error.response) {
               console.error('Server responded with non-2xx code:', error.response.data);
           } else if (error.request) {
@@ -74,6 +90,10 @@ export default {
     
     },
     fetchData() {
+      if (!this.uploadSuccessful) {
+        this.uploadStatus = 'Please upload files successfully before searching.';
+        return;
+      }
       this.isloading = true;
       this.bird_species = [];  // Clear previous data
       this.image_path = [];     // Clear previous data
@@ -85,6 +105,7 @@ export default {
             this.image_path.push(('.'+response.data[`img_url_${i}`]).split('../vue-frontend/public')[1]);
           }
           this.isloading = false;
+          this.uploadStatus = "Below are top three bird images that are most similar!"
           console.log(this.image_path[0],this.image_path[1],this.image_path[2])
         })
         .catch(error => {
@@ -107,11 +128,15 @@ export default {
 </script>
 
 <style scoped>
-.container {
+/* .container {
   text-align: center;
   margin-top: 20px;
+} */
+.container {
+  min-height: 80vh; /* Make the container at least the height of the viewport */
+  display: flex;
+  flex-direction: column; /* Organize children elements in a column */
 }
-
 .button {
   background-color: #4CAF50; /* Green */
   border: none;
@@ -152,7 +177,7 @@ export default {
   height: auto;
 }
 .status-message {
-  color: #333; /* Or any color that fits your design */
+  color: #2c3e50; /* Or any color that fits your design */
   margin-top: 8px;
 }
 
@@ -186,5 +211,29 @@ export default {
 
 .refresh-button:hover {
   background-color: #e5533b;
+}
+.footer {
+  margin-top: auto; /* Push the footer to the bottom of the flex container */
+  background-color: #2a2b2d;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.footer-content p {
+  margin: 0;
+  padding: 5px;
+}
+
+.footer a {
+  color: lightblue;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+.image-container .bird-species-text{
+  color: #fbfafa;
 }
 </style>
